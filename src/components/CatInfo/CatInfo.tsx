@@ -1,52 +1,27 @@
-import { useEffect, useState } from "react";
-
-const urlFact = "https://catfact.ninja/fact";
-const urlImage = "https://cataas.com/cat/says/";
-
+import { useCatFact } from "../../hooks/useCatFact";
+import { useCatImage } from "../../hooks/useCatImage";
 
 const CatInfo = () => {
 
-    const [fact, setFact] = useState<null | string>(null);
-    const [image, setImage] = useState<null | string>(null);
+    const { fact, refreshRandomFact } = useCatFact();
+    const { image } = useCatImage({ fact });
 
-    const searchFact = async () => {
-        const info = await fetch(urlFact).then(rs => rs.json());
-        if(info)
-            setFact(info.fact);
-    }
-    
-    useEffect(() => {
-        searchFact();
-    }, []);
-
-    useEffect(() => {
-
-        if(!fact) return;
-
-        fetch(`${urlImage}${fact.split(' ', 3).join(' ')}?json=true`)
-        .then(rs => rs.json())
-        .then(info => {
-            setImage(info.url);
-        });
-
-    }, [fact]);
-
-    return(
+    return (
         <div>
-            <p>{fact}</p>
+            <p id="fact">{fact}</p>
             <div style={{
                 width: "100%"
             }}>
-                {image && <img 
-                style={{
-                    width: "700px",
-                    height: "700px"
-                }} 
-                src={image}
-                alt="Cat image"
+                {!image ? <p>Loadding...</p> : <img
+                    style={{
+                        width: "700px",
+                        height: "700px"
+                    }}
+                    src={image}
+                    alt="Cat image"
                 ></img>}
             </div>
-            <button onClick={searchFact}>Get new fact</button>
+            <button onClick={refreshRandomFact}>Get new fact</button>
         </div>
     )
 }
